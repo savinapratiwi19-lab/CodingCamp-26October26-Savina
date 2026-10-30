@@ -1,0 +1,291 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1.1 Create directory structure and index.html skeleton": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281116660
+      },
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793282419300
+      },
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793283802123
+      }
+    ],
+    "1.2 Create css/styles.css single-page layout and typography": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281117054
+      },
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793282419207
+      },
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793283801978
+      }
+    ],
+    "1.3 Set up test infrastructure (package.json, fast-check, test runner)": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281117212
+      },
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793282423520
+      },
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793283802207
+      }
+    ],
+    "1.4 Structure js/app.js module namespace skeleton exposing pure modules for testing": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281117375
+      },
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793283812028
+      },
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793290458297
+      }
+    ],
+    "2.1 Implement validateTransaction, isValidAmount, isValidItemName": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281117509
+      },
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793290784543
+      }
+    ],
+    "3.1 Implement getTransactions, addTransaction, deleteTransaction": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281117618
+      }
+    ],
+    "4.1 Implement computeTotalBalance": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281117724
+      }
+    ],
+    "5.1 Implement computeDistribution": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281117832
+      }
+    ],
+    "6.1 Implement polarToCartesian and describeArc": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281117952
+      }
+    ],
+    "6.2 Implement buildPieChartSVG": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281118068
+      }
+    ],
+    "7.1 Implement saveTransactions and loadTransactions": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281118177
+      },
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793290473310
+      },
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793290772178
+      }
+    ],
+    "8.1 Implement renderBalance and renderTransactionList": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281118318
+      }
+    ],
+    "8.2 Implement renderChart (SVG or empty-state message)": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281118447
+      }
+    ],
+    "8.3 Implement form submit handler with validation and form clearing": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281118558
+      }
+    ],
+    "8.4 Implement delete with confirmation prompt": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281118751
+      }
+    ],
+    "8.5 Implement renderAll orchestration, attachEventListeners, and init entry point": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281118860
+      }
+    ],
+    "9. Checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281118958
+      }
+    ],
+    "11. Final checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281119069
+      }
+    ],
+    "2.2 Write property test for valid transaction acceptance": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281141429
+      }
+    ],
+    "2.3 Write property test for empty/whitespace field rejection": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281151214
+      }
+    ],
+    "2.4 Write property test for invalid amount rejection": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281158669
+      }
+    ],
+    "2.5 Write property test for item name length boundary": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281163218
+      }
+    ],
+    "3.2 Write property test for insertion-order preservation": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281167357
+      }
+    ],
+    "3.3 Write property test for exact-deletion semantics": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281172357
+      }
+    ],
+    "4.2 Write property test for total balance sum and empty-list zero": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281176157
+      }
+    ],
+    "5.2 Write property test for distribution sum and per-category totals": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281181643
+      }
+    ],
+    "5.3 Write property test for missing-category grouping": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281184716
+      }
+    ],
+    "7.2 Write property test for serialization round trip": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281490661
+      }
+    ],
+    "7.3 Write unit/integration tests for storage failure modes": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281495714
+      }
+    ],
+    "10.1 Write integration tests for UI wiring and persistence round-trip": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793281500002
+      }
+    ],
+    "10.2 Write performance-budget assertions": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793282411446
+      }
+    ],
+    "1. Set up project structure, HTML, CSS, and test infrastructure": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793290458425
+      }
+    ],
+    "7. Implement Persistence layer (Storage adapter)": [
+      {
+        "executionId": "b9e35df3-1524-41a9-a782-e06a8957ec3a",
+        "chatSessionId": "sess_0a58439c-5cc9-4ad6-a8ec-ee7e0b89e56f",
+        "timestamp": 1793290772282
+      }
+    ]
+  }
+}
