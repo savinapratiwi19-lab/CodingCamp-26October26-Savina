@@ -1,3 +1,38 @@
+:root {
+    color-scheme: light;
+    --background: #f5f7fa;
+    --surface: #ffffff;
+    --text: #1f2933;
+    --heading: #102a43;
+    --border: #e3e8ee;
+    --input-border: #cbd2d9;
+    --accent: #247ba0;
+    --accent-hover: #1c6280;
+    --accent-active: #155770;
+    --muted: #627d98;
+    --tag-text: #334e68;
+    --danger: #ba2525;
+    --danger-border: #f0b4b4;
+    --danger-background: #fbeaea;
+}
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --background: #101820;
+    --surface: #1b2836;
+    --text: #e3eaf2;
+    --heading: #f1f5f9;
+    --border: #33465a;
+    --input-border: #657b91;
+    --accent: #247ba0;
+    --accent-hover: #206e90;
+    --accent-active: #1c6280;
+    --muted: #b3c4d5;
+    --tag-text: #e3eaf2;
+    --danger: #ffb4b4;
+    --danger-border: #995c64;
+    --danger-background: #412830;
+}
+
 /* =========================================================================
    Expense & Budget Visualizer — styles.css
    -------------------------------------------------------------------------
@@ -27,8 +62,8 @@ body {
     min-height: 100vh;
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
         sans-serif;
-    color: #1f2933;
-    background-color: #f5f7fa;
+    color: var(--text);
+    background-color: var(--background);
     line-height: 1.5;
 }
 
@@ -47,7 +82,7 @@ h3 {
     margin: 0 0 0.5em 0;
     font-weight: 600;
     line-height: 1.25;
-    color: #102a43;
+    color: var(--heading);
 }
 
 h1 {
@@ -92,8 +127,8 @@ main {
 }
 
 section {
-    background-color: #ffffff;
-    border: 1px solid #e3e8ee;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
     border-radius: 8px;
     padding: 1.25rem;
 }
@@ -102,18 +137,18 @@ section {
    4. Total Balance header (Requirement 4.1)
    ------------------------------------------------------------------------- */
 
-.balance-header {
+.balance-section {
     text-align: center;
 }
 
-.balance-header h2 {
+.balance-section h1 {
     margin-bottom: 0.25rem;
 }
 
-.balance-value {
+.balance-amount {
     font-size: 2rem;
     font-weight: 700;
-    color: #102a43;
+    color: var(--heading);
 }
 
 /* -------------------------------------------------------------------------
@@ -140,16 +175,16 @@ input,
 select {
     width: 100%;
     padding: 0.5rem 0.625rem;
-    border: 1px solid #cbd2d9;
+    border: 1px solid var(--input-border);
     border-radius: 6px;
     font: inherit;
     color: inherit;
-    background-color: #ffffff;
+    background-color: var(--surface);
 }
 
 input:focus,
 select:focus {
-    outline: 2px solid #247ba0;
+    outline: 2px solid var(--accent);
     outline-offset: 1px;
 }
 
@@ -161,16 +196,16 @@ button {
     font: inherit;
     font-weight: 500;
     color: #ffffff;
-    background-color: #247ba0;
+    background-color: var(--accent);
     cursor: pointer;
 }
 
 button:hover {
-    background-color: #1c6280;
+    background-color: var(--accent-hover);
 }
 
 button:active {
-    background-color: #155770;
+    background-color: var(--accent-active);
 }
 
 /* Validation / error messages */
@@ -178,7 +213,7 @@ button:active {
 .error-message {
     margin: 0;
     font-size: 0.875rem;
-    color: #ba2525;
+    color: var(--danger);
 }
 
 /* -------------------------------------------------------------------------
@@ -200,7 +235,7 @@ button:active {
     justify-content: space-between;
     gap: 0.75rem;
     padding: 0.625rem 0;
-    border-bottom: 1px solid #e3e8ee;
+    border-bottom: 1px solid var(--border);
 }
 
 .transaction-item:last-child {
@@ -219,7 +254,7 @@ button:active {
 
 .transaction-item .item-meta {
     font-size: 0.875rem;
-    color: #627d98;
+    color: var(--muted);
 }
 
 .transaction-item .item-amount {
@@ -232,22 +267,22 @@ button:active {
     padding: 0.125rem 0.5rem;
     font-size: 0.75rem;
     border-radius: 999px;
-    background-color: #e3e8ee;
-    color: #334e68;
+    background-color: var(--border);
+    color: var(--tag-text);
 }
 
 .delete-control {
     flex-shrink: 0;
     padding: 0.25rem 0.625rem;
     font-size: 0.875rem;
-    color: #ba2525;
+    color: var(--danger);
     background-color: transparent;
-    border: 1px solid #f0b4b4;
+    border: 1px solid var(--danger-border);
     border-radius: 6px;
 }
 
 .delete-control:hover {
-    background-color: #fbeaea;
+    background-color: var(--danger-background);
 }
 
 /* Empty list: nothing is rendered (Requirement 2.4) */
@@ -256,7 +291,7 @@ button:active {
     padding: 1rem 0;
     text-align: center;
     font-size: 0.875rem;
-    color: #627d98;
+    color: var(--muted);
 }
 
 /* -------------------------------------------------------------------------
@@ -266,7 +301,7 @@ button:active {
    message ("No spending data available").
    ------------------------------------------------------------------------- */
 
-#chart-container {
+#chart {
     width: 100%;
     min-height: 240px;
     display: flex;
@@ -275,7 +310,7 @@ button:active {
     justify-content: center;
 }
 
-#chart-container svg {
+#chart svg {
     max-width: 100%;
     height: auto;
 }
@@ -308,7 +343,7 @@ button:active {
 .empty-chart-message {
     margin: 0;
     font-size: 1rem;
-    color: #627d98;
+    color: var(--muted);
     text-align: center;
 }
 
@@ -327,3 +362,38 @@ button:active {
     white-space: nowrap;
     border: 0;
 }
+
+.form-messages { color: var(--danger); padding-left: 1.25rem; }
+.form-messages:empty { display: none; }
+.transaction-details { min-width: 0; flex: 1; overflow-wrap: anywhere; }
+#chart svg { width: 320px; }
+button:focus-visible { outline: 2px solid var(--heading); outline-offset: 3px; }
+
+.theme-toolbar { display: flex; justify-content: flex-end; }
+#theme-toggle { color: var(--text); background: var(--surface); border: 1px solid var(--input-border); }
+#theme-toggle:hover { background: var(--border); }
+input::placeholder { color: var(--muted); opacity: 1; }
+
+.custom-category { margin-top: 1rem; }
+.custom-category summary { cursor: pointer; color: var(--text); }
+#category-form { margin-top: 0.75rem; }
+.category-entry { display: flex; align-items: stretch; gap: 0.5rem; margin-top: 0.25rem; }
+.category-entry input { flex: 1; min-width: 0; }
+.category-entry button { flex-shrink: 0; align-self: stretch; }
+#category-message { color: var(--muted); font-size: 0.875rem; }
+#category-message:empty { display: none; }
+@media (max-width: 380px) { .category-entry { flex-direction: column; } }
+
+#custom-category-list { list-style: none; margin: 0.75rem 0 0; padding: 0; }
+#custom-category-list:empty { display: none; }
+#custom-category-list li { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border); }
+#custom-category-list li span { min-width: 0; overflow-wrap: anywhere; }
+
+.balance-section { padding: 1rem; border: 2px solid transparent; border-radius: 8px; }
+.balance-section.over-limit { border-color: var(--danger-border); background: var(--danger-background); }
+.over-limit .balance-amount, .over-limit #budget-status { color: var(--danger); }
+#budget-status { margin: 0; font-weight: 500; }
+#budget-status:empty, #budget-message:empty { display: none; }
+#budget-help, #budget-message { color: var(--muted); font-size: 0.875rem; }
+#clear-budget { color: var(--text); background: var(--surface); border: 1px solid var(--input-border); }
+#clear-budget:hover { background: var(--border); }

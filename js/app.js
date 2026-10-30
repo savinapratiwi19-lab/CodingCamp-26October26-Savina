@@ -20,8 +20,7 @@
  * initialization only runs when a browser environment is present, so the pure
  * modules load cleanly under Node without a DOM.
  *
- * This file is currently a SKELETON (Task 1.4): the namespace structure and
- * guarded init call are in place, with method stubs that later tasks fill in.
+ * All modules are implemented below; DOM access is confined to the view layer.
  */
 
 (function () {
@@ -66,14 +65,16 @@
       if (amountBlank) {
         errors.push('Amount is required.');
       } else if (!App.Validation.isValidAmount(amount)) {
-        errors.push('Amount must be a positive number up to 999,999,999.99 with at most 2 decimal places.');
+        errors.push('Amount must be positive, up to Rp 999.999.999,99, with at most 2 decimal places.');
       }
 
-      // Category — the form enforces selection, so only non-empty is required.
+      // Built-in and custom category names share the same validation.
       var categoryBlank = category === null || category === undefined ||
         (typeof category === 'string' && category.trim() === '');
       if (categoryBlank) {
         errors.push('Category is required.');
+      } else if (typeof category !== 'string' || category.trim().length > 40) {
+        errors.push('Category must be a name of at most 40 characters.');
       }
 
       return { valid: errors.length === 0, errors: errors };
@@ -130,137 +131,383 @@
   // In-memory single source of truth for the current transaction list.
   var transactions = [];
 
+  var rupiahFormatter = new Intl.NumberFormat('id-ID', {
+    style: 'currency', currency: 'IDR', minimumFractionDigits: 2, maximumFractionDigits: 2
+  });
+  function formatRupiah(amount) { return rupiahFormatter.format(amount); }
+  function cents(amount) { return Math.round(Number(amount) * 100); }
+  function clone(list) { return list.map(function (t) { return Object.assign({}, t); }); }
+  var nextId = 0;
   App.State = {
-    // TODO: Task 3.1
-    getTransactions: function () {
-      return transactions;
-    },
-    // TODO: Task 3.1
+    getTransactions: function () { return clone(transactions); },
+    setTransactions: function (list) { transactions = clone(list); },
     addTransaction: function (input) {
-      return null;
+      var validation = App.Validation.validateTransaction(input);
+      if (!validation.valid) throw new Error(validation.errors.join(' '));
+      var id;
+      do { id = Date.now().toString(36) + '-' + (++nextId).toString(36); }
+      while (transactions.some(function (t) { return t.id === id; }));
+      var transaction = { id: id, item: input.item.trim(), amount: Number(input.amount), category: input.category.trim() };
+      transactions.push(transaction);
+      return Object.assign({}, transaction);
     },
-    // TODO: Task 3.1
     deleteTransaction: function (id) {
-      return transactions;
+      var index = transactions.findIndex(function (t) { return t.id === id; });
+      if (index < 0) throw new Error('Transaction not found.');
+      transactions.splice(index, 1);
+      return clone(transactions);
     }
   };
-
-  /* ------------------------------------------------------------------ */
-  /* Balance Module [pure]                                               */
-  /* Contract (implemented in Task 4.1):                                 */
-  /*   computeTotalBalance(transactions) -> number                       */
-  /*     (sum of amounts, rounded to 2 decimals; 0 for empty list)       */
-  /* ------------------------------------------------------------------ */
   App.Balance = {
-    // TODO: Task 4.1
-    computeTotalBalance: function (transactions) {
-      return 0;
+    computeTotalBalance: function (list) {
+      return list.reduce(function (total, t) { return total + cents(t.amount); }, 0) / 100;
     }
   };
-
-  /* ------------------------------------------------------------------ */
-  /* Distribution Module [pure]                                          */
-  /* Contract (implemented in Task 5.1):                                 */
-  /*   computeDistribution(transactions) -> Segment[]                     */
-  /*     ({ category, total, percentage } per category; [] for empty)     */
-  /* ------------------------------------------------------------------ */
   App.Distribution = {
-    // TODO: Task 5.1
-    computeDistribution: function (transactions) {
-      return [];
+    computeDistribution: function (list) {
+      var totals = new Map();
+      list.forEach(function (t) {
+        var category = typeof t.category === 'string' && t.category.trim() ? t.category.trim() : 'Uncategorized';
+        totals.set(category, (totals.get(category) || 0) + cents(t.amount));
+      });
+      var total = Array.from(totals.values()).reduce(function (a, b) { return a + b; }, 0);
+      if (!total) return [];
+      return Array.from(totals, function (entry) {
+        return { category: entry[0], total: entry[1] / 100, percentage: Math.round(entry[1] / total * 1000) / 10 };
+      });
     }
   };
-
-  /* ------------------------------------------------------------------ */
-  /* Chart Module                                                        */
-  /* Contracts:                                                          */
-  /*   polarToCartesian(cx, cy, r, angleDeg) -> { x, y }  [pure] (Task 6.1)*/
-  /*   describeArc(cx, cy, r, startAngle, endAngle) -> string [pure] (6.1)*/
-  /*   buildPieChartSVG(segments) -> SVGElement | null     (Task 6.2)     */
-  /* ------------------------------------------------------------------ */
+  var colors = { Food: '#247ba0', Transport: '#a85412', Fun: '#7953a9', Uncategorized: '#627d98' };
+  function categoryColor(category) {
+    if (Object.prototype.hasOwnProperty.call(colors, category)) return colors[category];
+    var hash = 0;
+    for (var i = 0; i < category.length; i++) hash = (hash * 31 + category.charCodeAt(i)) >>> 0;
+    return 'hsl(' + (hash % 360) + ', 55%, 45%)';
+  }
+  function svgElement(tag, attributes) {
+    var element = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    Object.keys(attributes).forEach(function (key) { element.setAttribute(key, attributes[key]); });
+    return element;
+  }
   App.Chart = {
-    // TODO: Task 6.1
     polarToCartesian: function (cx, cy, r, angleDeg) {
-      return { x: 0, y: 0 };
+      var angle = (angleDeg - 90) * Math.PI / 180;
+      return { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) };
     },
-    // TODO: Task 6.1
     describeArc: function (cx, cy, r, startAngle, endAngle) {
-      return '';
+      var start = App.Chart.polarToCartesian(cx, cy, r, startAngle);
+      var end = App.Chart.polarToCartesian(cx, cy, r, endAngle);
+      return ['M', cx, cy, 'L', start.x, start.y, 'A', r, r, 0, endAngle - startAngle >= 180 ? 1 : 0, 1, end.x, end.y, 'Z'].join(' ');
     },
-    // TODO: Task 6.2 (returns an SVGElement in the browser; null for empty)
     buildPieChartSVG: function (segments) {
-      return null;
+      if (!segments.length) return null;
+      var svg = svgElement('svg', { viewBox: '0 0 320 320', role: 'img', 'aria-label': 'Spending by category' });
+      var total = segments.reduce(function (sum, s) { return sum + s.total; }, 0);
+      var angle = 0;
+      segments.forEach(function (segment) {
+        // Geometry uses unrounded totals so rounded labels cannot leave gaps.
+        var end = angle + segment.total / total * 360;
+        var shape = segments.length === 1
+          ? svgElement('circle', { cx: 160, cy: 160, r: 140 })
+          : svgElement('path', { d: App.Chart.describeArc(160, 160, 140, angle, end) });
+        shape.setAttribute('fill', categoryColor(segment.category));
+        var label = segment.category + ': ' + segment.percentage.toFixed(1) + '% — ' + formatRupiah(segment.total);
+        var title = svgElement('title', {}); title.textContent = label; shape.appendChild(title);
+        svg.appendChild(shape);
+        angle = end;
+      });
+      return svg;
     }
   };
-
-  /* ------------------------------------------------------------------ */
-  /* Storage Adapter                                                     */
-  /* Contracts (implemented in Task 7.1):                                */
-  /*   saveTransactions(transactions) -> { ok, error? } (never throws)    */
-  /*   loadTransactions() -> { ok, transactions?, error? }                */
-  /* ------------------------------------------------------------------ */
-
-  // Local Storage key for the persisted transaction array (see design.md).
-  // Declared with `var` so it is hoisted within this IIFE and resolves on the
-  // global object when looked up at call time, allowing tests to stub
-  // `localStorage` as a global before invoking the Storage methods.
   var STORAGE_KEY = 'expense-visualizer:transactions';
-
+  function validStoredList(list) {
+    if (!Array.isArray(list)) return false;
+    var ids = new Set();
+    return list.every(function (t) {
+      if (!t || typeof t.id !== 'string' || !t.id || ids.has(t.id) ||
+          !App.Validation.isValidItemName(t.item) || typeof t.amount !== 'number' ||
+          !App.Validation.isValidAmount(t.amount) ||
+          !(t.category == null || typeof t.category === 'string')) return false;
+      ids.add(t.id); return true;
+    });
+  }
   App.Storage = {
-    // Task 7.1 — persist the transaction array to Local Storage as JSON.
-    // Wraps localStorage.setItem in try/catch and NEVER throws. On any error
-    // (e.g. QuotaExceededError, storage disabled in private mode) it returns
-    // { ok: false, error } so the controller can keep the in-memory list and
-    // show an error message (Requirements 6.1, 6.4).
-    saveTransactions: function (transactions) {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions));
-        return { ok: true };
-      } catch (e) {
-        return { ok: false, error: (e && e.message) || 'Failed to save transactions' };
-      }
+    saveTransactions: function (list) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); return { ok: true }; }
+      catch (e) { return { ok: false, error: e.message || 'Failed to save transactions.' }; }
     },
-    // Task 7.1 — read and parse the transaction array from Local Storage.
-    // A missing key (getItem returns null) is the normal empty state, NOT an
-    // error, so it returns { ok: true, transactions: [] } (Requirement 6.5).
-    // Any storage-access or JSON.parse error returns { ok: false, transactions:
-    // [], error } so the controller falls back to the empty view (Requirement 6.6).
     loadTransactions: function () {
       try {
         var raw = localStorage.getItem(STORAGE_KEY);
-        if (raw === null) {
-          return { ok: true, transactions: [] };
-        }
-        return { ok: true, transactions: JSON.parse(raw) };
-      } catch (e) {
-        return { ok: false, transactions: [], error: (e && e.message) || 'Failed to load transactions' };
-      }
+        var list = raw === null ? [] : JSON.parse(raw);
+        if (!validStoredList(list)) throw new Error('Saved transaction data is invalid.');
+        return { ok: true, transactions: list };
+      } catch (e) { return { ok: false, transactions: [], error: e.message || 'Failed to load transactions.' }; }
     }
   };
-
-  /* ------------------------------------------------------------------ */
-  /* Controller / View Layer                                              */
-  /* Contracts (implemented in Tasks 8.1–8.5):                           */
-  /*   renderAll()                       — re-render balance/list/chart  */
-  /*   renderTransactionList(transactions)                              */
-  /*   renderBalance(amount)             — formatted to 2 decimals       */
-  /*   renderChart(transactions)          — SVG or empty-state message    */
-  /*   attachEventListeners()            — form submit, delete, confirm  */
-  /*   init()                            — load persisted data, render    */
-  /* ------------------------------------------------------------------ */
+  function byId(id) { return document.getElementById(id); }
+  function messages(errors) {
+    var container = byId('form-messages'); container.replaceChildren();
+    errors.forEach(function (message) {
+      var li = document.createElement('li'); li.textContent = message; container.appendChild(li);
+    });
+  }
+  var CATEGORY_KEY = 'expense-visualizer:categories';
+  var categories = ['Food', 'Transport', 'Fun'];
+  App.Categories = {
+    render: function (selected) {
+      var select = byId('category-input');
+      select.replaceChildren();
+      var placeholder = document.createElement('option'); placeholder.value = ''; placeholder.textContent = 'Select a category'; select.appendChild(placeholder);
+      categories.forEach(function (name) {
+        var option = document.createElement('option'); option.value = name; option.textContent = name; select.appendChild(option);
+      });
+      select.value = selected || '';
+      var manager = byId('custom-category-list'); manager.replaceChildren();
+      categories.slice(3).forEach(function (name) {
+        var row = document.createElement('li');
+        var label = document.createElement('span'); label.textContent = name;
+        var button = document.createElement('button'); button.type = 'button'; button.className = 'delete-control';
+        button.textContent = 'Delete'; button.dataset.category = name;
+        button.setAttribute('aria-label', 'Delete category ' + name);
+        row.append(label, button); manager.appendChild(row);
+      });
+    },
+    remove: function (name) {
+      if (categories.indexOf(name) < 3) return;
+      var previous = App.State.getTransactions();
+      var affected = previous.filter(function (t) { return typeof t.category === 'string' && t.category.trim().toLowerCase() === name.toLowerCase(); });
+      var prompt = 'Delete category "' + name + '"?' + (affected.length ? ' Its ' + affected.length + ' transaction(s) will be kept under Uncategorized.' : '');
+      if (!globalThis.confirm(prompt)) return;
+      var selected = byId('category-input').value;
+      var updated = previous.map(function (t) {
+        if (typeof t.category === 'string' && t.category.trim().toLowerCase() === name.toLowerCase()) t.category = '';
+        return t;
+      });
+      var remaining = categories.filter(function (category) { return category !== name; });
+      var oldStoredTransactions;
+      var wroteTransactions = false;
+      try {
+        // Save transactions first so a deleted category cannot be recovered on reload.
+        if (affected.length) {
+          oldStoredTransactions = localStorage.getItem(STORAGE_KEY);
+          var saved = App.Storage.saveTransactions(updated);
+          if (!saved.ok) throw new Error(saved.error);
+          wroteTransactions = true;
+        }
+        localStorage.setItem(CATEGORY_KEY, JSON.stringify(remaining.slice(3)));
+      } catch (e) {
+        if (wroteTransactions) {
+          try {
+            if (oldStoredTransactions === null) localStorage.removeItem(STORAGE_KEY);
+            else localStorage.setItem(STORAGE_KEY, oldStoredTransactions);
+          } catch (restoreError) {
+            byId('category-message').textContent = 'Category was kept, but restoring saved transaction categories failed. Your transactions are still visible for this visit.';
+            return;
+          }
+        }
+        byId('category-message').textContent = 'Could not delete category: ' + e.message;
+        return;
+      }
+      categories = remaining; App.State.setTransactions(updated);
+      App.Categories.render(selected === name ? '' : selected); App.Controller.renderAll();
+      byId('category-message').textContent = 'Category deleted.' + (affected.length ? ' Its transactions were moved to Uncategorized.' : '');
+      byId('new-category-input').focus();
+    },
+    init: function (list) {
+      var warning = '';
+      categories = ['Food', 'Transport', 'Fun'];
+      function include(name) {
+        if (typeof name === 'string' && name.trim() && name.trim().length <= 40 &&
+            name.trim().toLowerCase() !== 'uncategorized' && !categories.some(function (c) { return c.toLowerCase() === name.trim().toLowerCase(); })) categories.push(name.trim());
+      }
+      try {
+        var raw = localStorage.getItem(CATEGORY_KEY);
+        if (raw !== null) {
+          var saved = JSON.parse(raw);
+          if (!Array.isArray(saved) || !saved.every(function (c) { return typeof c === 'string' && c.trim().length > 0 && c.trim().length <= 40; })) throw new Error('Invalid saved categories.');
+          saved.forEach(include);
+        }
+      } catch (e) { warning = 'Could not load saved categories: ' + e.message; }
+      // Recover categories from saved transactions even if category storage was lost.
+      list.forEach(function (t) { include(t.category); });
+      App.Categories.render();
+      byId('custom-category-list').addEventListener('click', function (event) {
+        var button = event.target.closest('button[data-category]');
+        if (button && byId('custom-category-list').contains(button)) App.Categories.remove(button.dataset.category);
+      });
+      byId('category-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+        var input = byId('new-category-input'); var name = input.value.trim();
+        var message = byId('category-message');
+        if (!name || name.length > 40) { message.textContent = 'Enter a category name of 1–40 characters.'; return; }
+        if (name.toLowerCase() === 'uncategorized' || categories.some(function (c) { return c.toLowerCase() === name.toLowerCase(); })) {
+          message.textContent = 'That category already exists or is reserved.'; return;
+        }
+        categories.push(name); App.Categories.render(name); input.value = '';
+        try {
+          localStorage.setItem(CATEGORY_KEY, JSON.stringify(categories.slice(3)));
+          message.textContent = 'Category added.';
+        } catch (e) { message.textContent = 'Category added for this visit, but could not be saved.'; }
+        byId('category-input').focus();
+      });
+      return warning;
+    }
+  };
+  var THEME_KEY = 'expense-visualizer:theme';
+  App.Theme = {
+    apply: function (theme) {
+      document.documentElement.dataset.theme = theme;
+      var toggle = byId('theme-toggle');
+      var dark = theme === 'dark';
+      toggle.setAttribute('aria-pressed', String(dark));
+      toggle.textContent = dark ? 'Light mode' : 'Dark mode';
+      toggle.title = dark ? 'Switch to light mode' : 'Switch to dark mode';
+    },
+    init: function () {
+      var saved;
+      try { saved = localStorage.getItem(THEME_KEY); } catch (e) { /* Use system preference. */ }
+      var preferred = typeof globalThis.matchMedia === 'function' && globalThis.matchMedia('(prefers-color-scheme: dark)').matches;
+      App.Theme.apply(saved === 'dark' || saved === 'light' ? saved : preferred ? 'dark' : 'light');
+      byId('theme-toggle').addEventListener('click', function () {
+        var theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        App.Theme.apply(theme);
+        try { localStorage.setItem(THEME_KEY, theme); } catch (e) { /* Theme still works without persistence. */ }
+      });
+    }
+  };
+  var BUDGET_KEY = 'expense-visualizer:budget';
+  var spendingLimit = null;
+  App.Budget = {
+    render: function (total) {
+      var over = spendingLimit !== null && cents(total) > cents(spendingLimit);
+      document.querySelector('.balance-section').classList.toggle('over-limit', over);
+      var status = byId('budget-status');
+      if (spendingLimit === null) { status.textContent = ''; return; }
+      var difference = Math.abs(cents(spendingLimit) - cents(total)) / 100;
+      status.textContent = over
+        ? 'Over your ' + formatRupiah(spendingLimit) + ' limit by ' + formatRupiah(difference) + '.'
+        : cents(total) === cents(spendingLimit)
+          ? 'Spending limit reached: ' + formatRupiah(spendingLimit) + '.'
+          : formatRupiah(difference) + ' remaining of your ' + formatRupiah(spendingLimit) + ' limit.';
+    },
+    set: function (value) {
+      spendingLimit = value;
+      App.Budget.render(App.Balance.computeTotalBalance(App.State.getTransactions()));
+      byId('budget-input').value = value === null ? '' : String(value);
+      try {
+        localStorage.setItem(BUDGET_KEY, JSON.stringify(value));
+        byId('budget-message').textContent = value === null ? 'Spending limit removed.' : 'Spending limit saved.';
+      } catch (e) {
+        byId('budget-message').textContent = 'Limit updated for this visit, but could not be saved.';
+      }
+    },
+    init: function () {
+      spendingLimit = null;
+      try {
+        var raw = localStorage.getItem(BUDGET_KEY);
+        var saved = raw === null ? null : JSON.parse(raw);
+        if (saved !== null && (typeof saved !== 'number' || !App.Validation.isValidAmount(saved))) throw new Error('Invalid saved limit.');
+        spendingLimit = saved;
+      } catch (e) { byId('budget-message').textContent = 'Could not load your spending limit. Set a new limit to enable highlighting.'; }
+      byId('budget-input').value = spendingLimit === null ? '' : String(spendingLimit);
+      byId('budget-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+        var value = byId('budget-input').value;
+        if (!App.Validation.isValidAmount(value)) {
+          byId('budget-message').textContent = 'Enter a positive limit up to Rp 999.999.999,99 with at most 2 decimal places.';
+          return;
+        }
+        App.Budget.set(Number(value));
+      });
+      byId('clear-budget').addEventListener('click', function () { App.Budget.set(null); });
+    }
+  };
   App.Controller = {
-    // TODO: Task 8.5
-    renderAll: function () {},
-    // TODO: Task 8.1
-    renderTransactionList: function (transactions) {},
-    // TODO: Task 8.1
-    renderBalance: function (amount) {},
-    // TODO: Task 8.2
-    renderChart: function (transactions) {},
-    // TODO: Task 8.5 (DOM-dependent)
-    attachEventListeners: function () {},
-    // TODO: Task 8.5 (DOM-dependent)
-    init: function () {}
+    renderAll: function () {
+      var list = App.State.getTransactions();
+      App.Controller.renderBalance(App.Balance.computeTotalBalance(list));
+      App.Controller.renderTransactionList(list);
+      App.Controller.renderChart(list);
+    },
+    renderBalance: function (amount) { byId('balance').textContent = formatRupiah(amount); App.Budget.render(amount); },
+    renderTransactionList: function (list) {
+      var fragment = document.createDocumentFragment();
+      var existing = new Map();
+      byId('transaction-list').querySelectorAll('.transaction-item').forEach(function (row) { existing.set(row.dataset.id, row); });
+      list.forEach(function (t) {
+        var signature = JSON.stringify([t.item, t.amount, t.category]);
+        var current = existing.get(t.id);
+        if (current && current.dataset.signature === signature) { fragment.appendChild(current); return; }
+        var row = document.createElement('div'); row.dataset.id = t.id; row.dataset.signature = signature; row.className = 'transaction-item'; row.setAttribute('role', 'listitem');
+        var details = document.createElement('div'); details.className = 'transaction-details';
+        var name = document.createElement('span'); name.className = 'item-name'; name.textContent = t.item;
+        var category = document.createElement('span'); category.className = 'category-tag'; category.textContent = typeof t.category === 'string' && t.category.trim() ? t.category.trim() : 'Uncategorized';
+        details.append(name, category);
+        var amount = document.createElement('span'); amount.className = 'item-amount'; amount.textContent = formatRupiah(t.amount);
+        var button = document.createElement('button'); button.type = 'button'; button.className = 'delete-control';
+        button.dataset.id = t.id; button.textContent = 'Delete'; button.setAttribute('aria-label', 'Delete ' + t.item);
+        row.append(details, amount, button); fragment.appendChild(row);
+      });
+      byId('transaction-list').replaceChildren(fragment);
+    },
+    renderChart: function (list) {
+      var container = byId('chart'); container.replaceChildren();
+      var segments = App.Distribution.computeDistribution(list);
+      var chart = App.Chart.buildPieChartSVG(segments);
+      if (!chart) {
+        var empty = document.createElement('p'); empty.className = 'empty-chart-message'; empty.textContent = 'No spending data available';
+        container.appendChild(empty); return;
+      }
+      container.appendChild(chart);
+      var legend = document.createElement('ul'); legend.className = 'chart-legend';
+      segments.forEach(function (s) {
+        var li = document.createElement('li'); var swatch = document.createElement('span'); swatch.className = 'legend-swatch';
+        swatch.style.backgroundColor = categoryColor(s.category); swatch.setAttribute('aria-hidden', 'true');
+        var label = document.createElement('span'); label.textContent = s.category + ': ' + s.percentage.toFixed(1) + '% — ' + formatRupiah(s.total);
+        li.append(swatch, label); legend.appendChild(li);
+      });
+      container.appendChild(legend);
+    },
+    attachEventListeners: function () {
+      byId('transaction-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+        var input = { item: byId('item-input').value, amount: byId('amount-input').value, category: byId('category-input').value };
+        var result = App.Validation.validateTransaction(input); messages(result.errors);
+        if (!result.valid) return;
+        App.State.addTransaction(input);
+        var saved = App.Storage.saveTransactions(App.State.getTransactions());
+        App.Controller.renderAll(); byId('transaction-form').reset(); byId('item-input').focus();
+        if (!saved.ok) messages(['Your transaction is shown, but could not be saved: ' + saved.error]);
+      });
+      byId('transaction-list').addEventListener('click', function (event) {
+        var button = event.target.closest('button[data-id]');
+        if (!button || !byId('transaction-list').contains(button)) return;
+        if (!globalThis.confirm('Delete this transaction?')) return;
+        var previous = App.State.getTransactions();
+        try {
+          App.State.deleteTransaction(button.dataset.id);
+          var saved = App.Storage.saveTransactions(App.State.getTransactions());
+          if (!saved.ok) throw new Error(saved.error);
+          messages([]); App.Controller.renderAll();
+        } catch (e) {
+          App.State.setTransactions(previous); App.Controller.renderAll();
+          messages(['Could not delete transaction: ' + e.message]);
+        }
+      });
+    },
+    init: function () {
+      App.Theme.init();
+      App.Budget.init();
+      var loaded = App.Storage.loadTransactions();
+      App.State.setTransactions(loaded.ok ? loaded.transactions : []);
+      var categoryWarning = App.Categories.init(App.State.getTransactions());
+      App.Controller.attachEventListeners(); App.Controller.renderAll();
+      var warnings = [];
+      if (!loaded.ok) warnings.push('Could not load saved transactions: ' + loaded.error);
+      if (categoryWarning) warnings.push(categoryWarning);
+      messages(warnings);
+    }
   };
 
   /* ------------------------------------------------------------------ */

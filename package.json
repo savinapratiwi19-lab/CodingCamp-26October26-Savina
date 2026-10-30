@@ -4,12 +4,13 @@
   "description": "Client-side expense tracker built with plain HTML, CSS, and vanilla JavaScript. Test dependencies are kept separate from the running app, which has zero JS dependencies.",
   "private": true,
   "scripts": {
-    "test": "node --test"
+    "test": "node --test --test-concurrency=1 test/*.test.js"
   },
   "engines": {
     "node": ">=18"
   },
   "devDependencies": {
-    "fast-check": "4.10.2"
+    "fast-check": "4.10.2",
+    "jsdom": "26.1.0"
   }
 }
